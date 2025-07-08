@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">PhotoGallery</string>
+    <string name="create_album">创建相册</string>
+    <string name="album_name">相册名称</string>
+    <string name="add_to_album">添加到相册</string>
+    <string name="select_album">选择相册</string>
+    <string name="create_new_album">创建新相册</string>
+    <string name="cancel">取消</string>
+    <string name="ok">确定</string>
+    <string name="delete_album">删除相册</string>
+    <string name="confirm_delete">确认删除</string>
+    <string name="delete_album_message">确定要删除这个相册吗？</string>
+    <string name="albums">相册</string>
+    <string name="all_photos">所有照片</string>
+    <string name="enter_album_name">请输入相册名称</string>
+    <string name="album_created">相册创建成功</string>
+    <string name="image_added_to_album">图片已添加到相册</string>
+</resources>

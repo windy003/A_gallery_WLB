@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/albumTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="相册名称"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:padding="16dp"
+        android:background="@android:color/white"
+        android:elevation="4dp" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <GridView
+            android:id="@+id/albumGridView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:numColumns="auto_fit"
+            android:verticalSpacing="4dp"
+            android:horizontalSpacing="4dp"
+            android:columnWidth="120dp"
+            android:stretchMode="columnWidth"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/emptyView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="相册为空\n长按照片添加到相册"
+            android:textSize="16sp"
+            android:textColor="@android:color/darker_gray"
+            android:gravity="center"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/albumFullImageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:scaleType="fitCenter"
+            android:background="@android:color/black" />
+
+    </FrameLayout>
+
+</LinearLayout> 
