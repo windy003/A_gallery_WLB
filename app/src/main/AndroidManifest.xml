@@ -29,10 +29,6 @@
             android:exported="false"
             android:parentActivityName=".AlbumListActivity" />
 
-        <activity 
-            android:name=".FullScreenImageActivity"
-            android:exported="false"
-            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
 
     </application>
 </manifest>
