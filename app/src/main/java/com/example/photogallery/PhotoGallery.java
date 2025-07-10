@@ -3,12 +3,14 @@ package com.example.photogallery;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.Menu;
@@ -74,8 +76,24 @@ public class PhotoGallery extends AppCompatActivity {
         if (id == R.id.action_albums) {
             openAlbumList();
             return true;
+        } else if (id == R.id.action_about) {
+            showAboutDialog();
+            return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+    
+    private void showAboutDialog() {
+        String message = "相册应用\n\n" +
+                "系统版本: " + PermissionHelper.getAndroidVersionInfo() + "\n" +
+                "安卓11兼容: " + (PermissionHelper.isAndroid11OrAbove() ? "是" : "否") + "\n" +
+                "权限状态: " + (PermissionHelper.hasReadMediaPermission(this) ? "已授权" : "未授权");
+        
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("关于")
+                .setMessage(message)
+                .setPositiveButton("确定", null)
+                .show();
     }
 
     private void openAlbumList() {
@@ -154,40 +172,74 @@ public class PhotoGallery extends AppCompatActivity {
     }
 
     private void checkPermissionAndLoadImages() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES)
-                == PackageManager.PERMISSION_GRANTED) {
+        if (PermissionHelper.hasReadMediaPermission(this)) {
             loadImagesFromMediaStore();
         } else {
-            requestPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES);
+            String permission = PermissionHelper.getReadMediaPermission();
+            requestPermissionLauncher.launch(permission);
         }
     }
 
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
+                    Toast.makeText(this, "权限已授权，正在加载图片...", Toast.LENGTH_SHORT).show();
                     loadImagesFromMediaStore();
                 } else {
-                    Toast.makeText(this, "需要权限才能继续使用应用", Toast.LENGTH_SHORT).show();
+                    String message = "需要存储权限才能访问照片。\n" +
+                            "当前系统: " + PermissionHelper.getAndroidVersionInfo() + "\n" +
+                            "请在设置中手动授权。";
+                    Toast.makeText(this, message, Toast.LENGTH_LONG).show();
                 }
             });
 
     private void loadImagesFromMediaStore() {
+        // 清空之前的图片列表
+        imageUris.clear();
+        
         ContentResolver contentResolver = getContentResolver();
         Uri uri = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
         String[] projection = {
-                MediaStore.Images.Media._ID
+                MediaStore.Images.Media._ID,
+                MediaStore.Images.Media.DISPLAY_NAME,
+                MediaStore.Images.Media.DATE_ADDED,
+                MediaStore.Images.Media.MIME_TYPE
         };
+        
+        // 添加查询条件，只查询图片类型
+        String selection = MediaStore.Images.Media.MIME_TYPE + "=? OR " + 
+                          MediaStore.Images.Media.MIME_TYPE + "=? OR " +
+                          MediaStore.Images.Media.MIME_TYPE + "=? OR " +
+                          MediaStore.Images.Media.MIME_TYPE + "=?";
+        String[] selectionArgs = new String[]{"image/jpeg", "image/png", "image/gif", "image/webp"};
+        
         String sortOrder = MediaStore.Images.Media.DATE_ADDED + " DESC";
-        try (Cursor cursor = contentResolver.query(uri, projection, null, null, sortOrder)) {
+        
+        try (Cursor cursor = contentResolver.query(uri, projection, selection, selectionArgs, sortOrder)) {
             if (cursor != null) {
                 int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
+                int count = 0;
                 while (cursor.moveToNext()) {
                     long id = cursor.getLong(idColumn);
-                    Uri imageUri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(id));
+                    Uri imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
                     imageUris.add(imageUri);
+                    count++;
                 }
                 photoAdapter.notifyDataSetChanged();
+                
+                // 显示加载结果
+                String message = "已加载 " + count + " 张图片";
+                if (PermissionHelper.isAndroid11OrAbove()) {
+                    message += " (安卓11+兼容模式)";
+                }
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "无法访问媒体存储", Toast.LENGTH_SHORT).show();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            String errorMessage = "加载图片时出错: " + e.getMessage();
+            Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
         }
     }
 

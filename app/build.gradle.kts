@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.photogallery"
-        minSdk = 33
+        minSdk = 26  // 提高到26以支持adaptive-icon
         targetSdk = 34
         versionCode = 1
         versionName = "2025/7/9-01"
@@ -35,6 +35,8 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation("com.google.code.gson:gson:2.10.1")
+    // 添加ExifInterface支持，用于处理图片元数据
+    implementation("androidx.exifinterface:exifinterface:1.3.7")
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
