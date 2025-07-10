@@ -11,7 +11,7 @@ android {
         minSdk = 26  // 提高到26以支持adaptive-icon
         targetSdk = 34
         versionCode = 1
-        versionName = "2025/7/9-01"
+        versionName = "2025/7/10-01"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
